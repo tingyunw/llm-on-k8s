@@ -1,0 +1,20 @@
+loguru
+pandas
+minio
+
+# Celery
+celery[redis]
+flower
+
+# API
+fastapi
+uvicorn
+requests
+pydantic
+
+# ollama
+ollama
+
+# GUI
+streamlit
+

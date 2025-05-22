@@ -3,23 +3,76 @@ version: '3.8'
 services:
   llm-frontend:
     build:
-      context: ./llm-frontend
+      context: ./llm-all-in-one
       dockerfile: Dockerfile
     ports:
       - "8501:8501"
-    environment:
-      - ROUTER_URL=http://llm-backend:8080
     depends_on:
       - llm-backend
+    command: ["streamlit", "run", "pipelines/frontend/main.py", "--server.port=8501", "--server.address=0.0.0.0"] 
     networks:
       - llm-network
 
   llm-backend:
     build:
-      context: ./llm-backend
+      context: ./llm-all-in-one
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    command: ["uvicorn", "pipelines.server.routers.main:app", "--host", "0.0.0.0", "--port", "8080"] 
+    networks:
+      - llm-network
+  
+  redis:
+    image: redis:7.2-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - llm-network
+  
+  flower:
+    build:
+      context: ./llm-all-in-one
+      dockerfile: Dockerfile
+    ports: 
+      - "5555:5555"
+    command: celery -A pipelines.server.celery_app.app flower --address=0.0.0.0
+    networks:
+      - llm-network
+  
+  celery-worker1:
+    build:
+      context: ./llm-all-in-one
+      dockerfile: Dockerfile
+    environment:
+      - OLLAMA_HOST=http://ollama1:11434
+    command: celery -A pipelines.server.celery_app.app worker --loglevel=info
+    networks:
+      - llm-network
+  
+  celery-worker2:
+    build:
+      context: ./llm-all-in-one
+      dockerfile: Dockerfile
+    environment:
+      - OLLAMA_HOST=http://ollama2:11434
+    command: celery -A pipelines.server.celery_app.app worker --loglevel=info
+    networks:
+      - llm-network
+  
+  ollama1:
+    build:
+      context: ./llm-model
+      dockerfile: Dockerfile
+    networks:
+      - llm-network
+  ollama2:
+    build:
+      context: ./llm-model
+      dockerfile: Dockerfile
     networks:
       - llm-network
 
@@ -28,5 +81,5 @@ networks:
     driver: bridge
 
 volumes:
-  model-data:
+  redis-data:
     driver: local 

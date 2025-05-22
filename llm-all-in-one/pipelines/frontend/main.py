@@ -3,7 +3,7 @@ import streamlit as st
 from loguru import logger
 import os
 import sys
-from config.ap_config import router_url
+from pipelines.config.ap_config import router_url
 
 
 def on_click():

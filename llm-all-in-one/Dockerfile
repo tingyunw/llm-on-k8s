@@ -9,17 +9,13 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
-COPY requirements.txt .
-
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
 # Copy source code
 COPY . .
 
-# Expose port
-EXPOSE 8080
+# Install Python dependencies
+RUN pip install --no-cache-dir -r pipelines/requirements.txt
 
-# Start the FastAPI application
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"] 
+ENV PYTHONPATH=/app
+
+# Expose port
+EXPOSE 8501 8080
