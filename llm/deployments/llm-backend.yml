@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-backend
+  namespace: llm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-backend
+  template:
+    metadata:
+      labels:
+        app: llm-backend
+    spec:
+      containers:
+        - name: llm-backend
+          image: tingyunyun/llm-all-in-one:latest
+          command: ["uvicorn", "pipelines.server.routers.main:app", "--host", "0.0.0.0", "--port", "8080"]
+          ports:
+            - containerPort: 8080

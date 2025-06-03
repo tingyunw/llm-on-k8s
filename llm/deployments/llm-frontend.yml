@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-frontend
+  namespace: llm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llm-frontend
+  template:
+    metadata:
+      labels:
+        app: llm-frontend
+    spec:
+      containers:
+        - name: llm-frontend
+          image: tingyunyun/llm-all-in-one:latest
+          command: ["streamlit", "run", "pipelines/frontend/main.py", "--server.port=8501", "--server.address=0.0.0.0"]
+          ports:
+            - containerPort: 8501

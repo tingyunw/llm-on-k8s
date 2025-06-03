@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker
+  namespace: llm
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: celery-worker
+  template:
+    metadata:
+      labels:
+        app: celery-worker
+    spec:
+      containers:
+      - name: celery-worker
+        image: tingyunyun/llm-all-in-one:latest
+        env:
+        - name: OLLAMA_HOST
+          value: "http://ollama:11434"
+        command: ["celery"]
+        args: ["-A", "pipelines.server.celery_app.app", "worker", "--loglevel=info"]

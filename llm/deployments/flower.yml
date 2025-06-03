@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+  namespace: llm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flower
+  template:
+    metadata:
+      labels:
+        app: flower
+    spec:
+      containers:
+      - name: flower
+        image: tingyunyun/llm-all-in-one:latest
+        ports:
+        - containerPort: 5555
+        command: ["celery"]
+        args: ["-A", "pipelines.server.celery_app.app", "flower", "--address=0.0.0.0"]
